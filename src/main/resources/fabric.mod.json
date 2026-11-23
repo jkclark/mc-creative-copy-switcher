@@ -1,0 +1,19 @@
+{
+	"schemaVersion": 1,
+	"id": "creativecopy",
+	"version": "${version}",
+	"name": "Creative Copy Switcher",
+	"description": "Adds pause menu buttons to jump between a survival world and creative copies of it.",
+	"authors": ["jkclark"],
+	"contact": {
+		"sources": "https://github.com/jkclark/mc-creative-copy-switcher"
+	},
+	"icon": "assets/creativecopy/icon.png",
+	"environment": "client",
+	"mixins": ["creativecopy.mixins.json"],
+	"depends": {
+		"fabricloader": ">=0.20.1",
+		"minecraft": "~26.3",
+		"java": ">=25"
+	}
+}
