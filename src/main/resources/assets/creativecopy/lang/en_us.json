@@ -1,0 +1,13 @@
+{
+	"creativecopy.button.open_in_creative": "Open in Creative",
+	"creativecopy.button.return_to_survival": "Return to Survival",
+	"creativecopy.button.new_copy": "Open in new copy",
+	"creativecopy.button.recent_copy": "Open in most recent copy",
+	"creativecopy.button.recent_copy.tooltip": "Opens \"%s\"",
+	"creativecopy.button.recent_copy.none": "No creative copies of this world exist yet",
+	"creativecopy.screen.title": "Open in Creative",
+	"creativecopy.status.creating": "Creating creative copy...",
+	"creativecopy.error.title": "Creative Copy Switcher",
+	"creativecopy.error.copy_failed": "Failed to create the creative copy: %s",
+	"creativecopy.error.source_missing": "The original survival world could not be found. It may have been deleted or renamed on disk."
+}
