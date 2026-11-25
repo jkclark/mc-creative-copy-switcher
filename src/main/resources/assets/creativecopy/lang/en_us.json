@@ -14,6 +14,7 @@
 	"creativecopy.sync.no_changes": "You haven't changed any blocks in this copy.",
 	"creativecopy.sync.failed": "Failed to send the changes to survival: %s",
 	"creativecopy.sync.placed": "Added %s changed blocks from \"%s\" as a Litematica placement.",
+	"creativecopy.sync.made_visible": "Turned on Litematica's schematic rendering and set its layers to All, so the changes are visible.",
 	"creativecopy.sync.elsewhere": "%s more changed blocks will be added when you go to %s.",
 	"creativecopy.sync.place_failed": "Couldn't add the changes as a Litematica placement: %s",
 	"creativecopy.error.title": "Creative Copy Switcher",

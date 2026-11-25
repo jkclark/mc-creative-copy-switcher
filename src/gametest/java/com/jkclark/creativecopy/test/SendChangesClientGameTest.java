@@ -2,9 +2,11 @@ package com.jkclark.creativecopy.test;
 
 import com.jkclark.creativecopy.CreativeCopies;
 import com.jkclark.creativecopy.CreativeCopyScreen;
+import fi.dy.masa.litematica.config.Configs;
 import fi.dy.masa.litematica.data.DataManager;
 import fi.dy.masa.litematica.schematic.placement.SchematicPlacement;
 import fi.dy.masa.litematica.world.SchematicWorldHandler;
+import fi.dy.masa.malilib.util.LayerMode;
 import java.util.List;
 import net.fabricmc.fabric.api.client.gametest.v1.FabricClientGameTest;
 import net.fabricmc.fabric.api.client.gametest.v1.context.ClientGameTestContext;
@@ -45,7 +47,13 @@ public class SendChangesClientGameTest implements FabricClientGameTest {
 			openPauseMenu(context);
 			context.clickScreenButton("Return to Survival");
 			waitForWorld(context, survivalId);
-			run(context, "setblock 6 101 5 diamond_block");
+			run(context, "setblock 6 101 5 diamond_block", "gamemode spectator @a", "tp @a 6.0 101.0 -3.0 0 5");
+
+			// The sent changes have to be visible even if Litematica's settings would hide them.
+			context.runOnClient(mc -> {
+				DataManager.getRenderLayerRange().setLayerMode(LayerMode.SINGLE_LAYER);
+				Configs.Visuals.ENABLE_RENDERING.setBooleanValue(false);
+			});
 			openPauseMenu(context);
 			context.clickScreenButton("Open in Creative");
 			context.waitForScreen(CreativeCopyScreen.class);
@@ -66,6 +74,8 @@ public class SendChangesClientGameTest implements FabricClientGameTest {
 			context.waitTicks(60);
 			send(context, survivalId);
 			context.runOnClient(mc -> {
+				check("rendering", true, Configs.Visuals.ENABLE_RENDERING.getBooleanValue());
+				check("layers", LayerMode.ALL, DataManager.getRenderLayerRange().getLayerMode());
 				check("placements", 1, placements().size());
 				check("origin", new BlockPos(4, 100, 4), placements().getFirst().getOrigin());
 				check("selected", placements().getFirst(), DataManager.getSchematicPlacementManager().getSelectedSchematicPlacement());
@@ -82,7 +92,7 @@ public class SendChangesClientGameTest implements FabricClientGameTest {
 				check("survival world untouched", Blocks.GOLD_BLOCK, mc.level.getBlockState(new BlockPos(4, 100, 4)).getBlock());
 				check("survival world untouched", Blocks.AIR, mc.level.getBlockState(new BlockPos(8, 102, 6)).getBlock());
 			});
-			context.waitTicks(20);
+			context.waitTicks(80);
 			context.takeScreenshot("creativecopy-sent-changes");
 
 			// Sending again after reopening the copy replaces the placement and still knows the earlier changes.
@@ -99,6 +109,8 @@ public class SendChangesClientGameTest implements FabricClientGameTest {
 				check("earlier change", Blocks.OAK_PLANKS, schematic(8, 102, 6));
 				check("undone change", Blocks.GOLD_BLOCK, schematic(4, 100, 4));
 			});
+			context.waitTicks(80);
+			context.takeScreenshot("creativecopy-sent-changes-again");
 		}
 	}
 

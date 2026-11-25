@@ -17,7 +17,8 @@ creative copy of it (to test a build), and one click to get back, with the build
 
 - **Send Changes to Survival**: saves everything you changed in the copy as a Litematica schematic, opens the
   original world, and places the schematic at the same coordinates. Sending again replaces the previous
-  placement. Changes in other dimensions are placed when you next go there.
+  placement. Changes in other dimensions are placed when you next go there. Litematica's rendering is turned on
+  and its layer mode set to All, so the changes are visible.
 - **Return to Survival**: saves and reopens the original world.
 
 ### What counts as a change

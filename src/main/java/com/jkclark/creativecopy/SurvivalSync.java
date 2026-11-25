@@ -4,6 +4,7 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
+import fi.dy.masa.litematica.config.Configs;
 import fi.dy.masa.litematica.data.DataManager;
 import fi.dy.masa.litematica.data.SchematicHolder;
 import fi.dy.masa.litematica.schematic.LitematicaSchematic;
@@ -12,7 +13,9 @@ import fi.dy.masa.litematica.schematic.placement.SchematicPlacement;
 import fi.dy.masa.litematica.schematic.placement.SchematicPlacementManager;
 import fi.dy.masa.litematica.selection.AreaSelection;
 import fi.dy.masa.litematica.selection.Box;
+import fi.dy.masa.malilib.config.options.ConfigBoolean;
 import fi.dy.masa.malilib.util.FileNameUtils;
+import fi.dy.masa.malilib.util.LayerMode;
 import fi.dy.masa.malilib.util.data.tag.CompoundData;
 import fi.dy.masa.malilib.util.data.tag.converter.DataConverterNbt;
 import fi.dy.masa.malilib.util.data.tag.util.DataTypeUtils;
@@ -361,6 +364,10 @@ public final class SurvivalSync {
 			// Take them off the queue first, so one that makes Litematica fail isn't retried forever.
 			queued.removeAll(here);
 			writeQueue(levelId, queued);
+			if (here.stream().anyMatch(placement -> !placement.remove())) {
+				makeSchematicsVisible(minecraft);
+			}
+
 			here.forEach(placement -> place(minecraft, placement));
 			DataManager.save(true);
 			for (Placement elsewhere : queued) {
@@ -371,6 +378,38 @@ public final class SurvivalSync {
 		} catch (Exception e) {
 			LOGGER.error("Failed to add queued placements in {}", levelId, e);
 			say(minecraft, Component.translatable("creativecopy.sync.place_failed", String.valueOf(e.getMessage())));
+		}
+	}
+
+	/** Turns on everything that could keep the new placement from being seen. */
+	private static void makeSchematicsVisible(final Minecraft minecraft) {
+		boolean changed = false;
+		boolean renderingWasOff = !Configs.Visuals.ENABLE_RENDERING.getBooleanValue();
+		for (ConfigBoolean setting : List.of(
+			Configs.Visuals.ENABLE_RENDERING, Configs.Visuals.ENABLE_SCHEMATIC_RENDERING, Configs.Visuals.ENABLE_SCHEMATIC_BLOCKS
+		)) {
+			if (!setting.getBooleanValue()) {
+				setting.setBooleanValue(true);
+				changed = true;
+			}
+		}
+
+		if (changed) {
+			Configs.saveToFile();
+		}
+
+		if (renderingWasOff) {
+			// What Litematica's own hotkey does besides changing the setting.
+			DataManager.getSchematicPlacementManager().onToggleMainRendering(true);
+		}
+
+		if (DataManager.getRenderLayerRange().getLayerMode() != LayerMode.ALL) {
+			DataManager.getRenderLayerRange().setLayerMode(LayerMode.ALL, false);
+			changed = true;
+		}
+
+		if (changed) {
+			say(minecraft, Component.translatable("creativecopy.sync.made_visible"));
 		}
 	}
 
