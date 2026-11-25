@@ -5,6 +5,9 @@
 	"name": "Creative Copy Switcher Tests",
 	"environment": "*",
 	"entrypoints": {
-		"fabric-client-gametest": ["com.jkclark.creativecopy.test.CreativeCopyClientGameTest"]
+		"fabric-client-gametest": [
+			"com.jkclark.creativecopy.test.CreativeCopyClientGameTest",
+			"com.jkclark.creativecopy.test.SendChangesClientGameTest"
+		]
 	}
 }
