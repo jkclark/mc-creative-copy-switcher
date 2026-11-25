@@ -18,14 +18,13 @@ public abstract class PauseScreenMixin extends Screen {
 		super(title);
 	}
 
-	/** Adds our full-width button to the pause menu grid, just above "Save and Quit to Title". */
+	/** Adds our full-width buttons to the pause menu grid, just above "Save and Quit to Title". */
 	@Inject(
 		method = "createPauseMenu",
 		at = @At(value = "INVOKE", target = "Lnet/minecraft/network/chat/CommonComponents;disconnectButtonLabel(Z)Lnet/minecraft/network/chat/Component;")
 	)
-	private void creativecopy$addButton(final CallbackInfo ci, @Local final GridLayout.RowHelper helper) {
-		Button button = CreativeCopyScreen.pauseMenuButton(this.minecraft, this);
-		if (button != null) {
+	private void creativecopy$addButtons(final CallbackInfo ci, @Local final GridLayout.RowHelper helper) {
+		for (Button button : CreativeCopyScreen.pauseMenuButtons(this.minecraft, this)) {
 			helper.addChild(button, 2);
 		}
 	}

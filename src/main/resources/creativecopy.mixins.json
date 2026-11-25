@@ -5,6 +5,7 @@
 	"client": [
 		"FallingBlockEntityMixin",
 		"LevelChunkMixin",
+		"MinecraftMixin",
 		"MinecraftServerMixin",
 		"PauseScreenMixin",
 		"ServerLevelMixin"
