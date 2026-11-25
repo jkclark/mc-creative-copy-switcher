@@ -3,7 +3,11 @@
 	"package": "com.jkclark.creativecopy.mixin",
 	"compatibilityLevel": "JAVA_25",
 	"client": [
-		"PauseScreenMixin"
+		"FallingBlockEntityMixin",
+		"LevelChunkMixin",
+		"MinecraftServerMixin",
+		"PauseScreenMixin",
+		"ServerLevelMixin"
 	],
 	"injectors": {
 		"defaultRequire": 1

@@ -16,6 +16,8 @@ import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
+import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionException;
 import net.minecraft.client.Minecraft;
@@ -48,9 +50,11 @@ import org.slf4j.LoggerFactory;
 public final class CreativeCopies {
 	private static final Logger LOGGER = LoggerFactory.getLogger("creativecopy");
 	private static final String MARKER_FILE = "creativecopy.json";
+	private static final Set<String> NOT_COPIED = Set.of("session.lock", MARKER_FILE, ChangeTracker.JOURNAL_FILE);
 	private static final long WORLD_CLOSE_TIMEOUT_MILLIS = 120_000;
 
-	public record Marker(String sourceLevelId, int number) {}
+	/** The id tells copies apart that reuse the number of a deleted one. */
+	public record Marker(String sourceLevelId, int number, String id) {}
 
 	public record Copy(String levelId, String name, int number) {}
 
@@ -74,7 +78,8 @@ public final class CreativeCopies {
 
 		try {
 			JsonObject json = JsonParser.parseString(Files.readString(markerFile)).getAsJsonObject();
-			return Optional.of(new Marker(json.get("source").getAsString(), json.get("number").getAsInt()));
+			String id = json.has("id") ? json.get("id").getAsString() : "";
+			return Optional.of(new Marker(json.get("source").getAsString(), json.get("number").getAsInt(), id));
 		} catch (Exception e) {
 			LOGGER.warn("Ignoring unreadable marker file {}", markerFile, e);
 			return Optional.empty();
@@ -85,6 +90,7 @@ public final class CreativeCopies {
 		JsonObject json = new JsonObject();
 		json.addProperty("source", marker.sourceLevelId());
 		json.addProperty("number", marker.number());
+		json.addProperty("id", marker.id());
 		Files.writeString(worldDir.resolve(MARKER_FILE), json.toString());
 	}
 
@@ -223,7 +229,8 @@ public final class CreativeCopies {
 				try {
 					copyWorldFiles(levelSource.getLevelPath(sourceLevelId), copyDir);
 					makeCreative(copyDir, copyName);
-					writeMarker(copyDir, new Marker(sourceLevelId, number));
+					ChangeTracker.createJournal(copyDir);
+					writeMarker(copyDir, new Marker(sourceLevelId, number, UUID.randomUUID().toString().substring(0, 8)));
 				} catch (IOException | RuntimeException e) {
 					try {
 						copyAccess.deleteLevel();
@@ -253,7 +260,7 @@ public final class CreativeCopies {
 			@Override
 			public FileVisitResult visitFile(final Path file, final BasicFileAttributes attrs) throws IOException {
 				Path relative = from.relativize(file);
-				if (!relative.toString().equals("session.lock") && !relative.toString().equals(MARKER_FILE)) {
+				if (!NOT_COPIED.contains(relative.toString())) {
 					Files.copy(file, to.resolve(relative), StandardCopyOption.REPLACE_EXISTING, StandardCopyOption.COPY_ATTRIBUTES);
 				}
 
